@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e293b">
+  <link rel="manifest" href="manifest.json">
   <title>英語学習</title>
   <style>
     :root {
@@ -15,9 +17,6 @@
       --text: #f1f5f9;
       --text-muted: #94a3b8;
       --border: #334155;
-      --reveal-bg: #052e16;
-      --reveal-border: #166534;
-      --reveal-label: #4ade80;
       --radius: 10px;
       --shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
@@ -33,7 +32,7 @@
 
     /* ── Header ── */
     header {
-      background: #1e293b;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
       padding: 10px 20px;
       display: flex;
@@ -42,7 +41,7 @@
     }
 
     header h1 {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--text);
       white-space: nowrap;
@@ -52,15 +51,16 @@
       display: flex;
       gap: 6px;
       margin-left: auto;
+      align-items: center;
     }
 
     .mode-tab {
-      padding: 6px 16px;
+      padding: 6px 14px;
       border-radius: 999px;
       border: 1px solid var(--border);
       background: transparent;
       color: var(--text-muted);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
@@ -78,20 +78,57 @@
       color: var(--primary);
     }
 
-    /* ── Main ── */
-    main {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 20px 16px;
+    /* ── Quiz type dropdown ── */
+    .quiz-tab-wrap { position: relative; }
+
+    .quiz-drop {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px;
+      min-width: 170px;
+      z-index: 200;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.6);
+      flex-direction: column;
+      gap: 2px;
     }
 
-    /* ── Filter / type bars ── */
-    .filter-bar, .quiz-type-bar {
+    .quiz-drop.open { display: flex; }
+
+    .quiz-drop button {
+      padding: 8px 12px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .quiz-drop button:hover { background: var(--surface2); color: var(--text); }
+    .quiz-drop button.selected { color: var(--primary); }
+    .quiz-drop button.selected::before { content: '✓'; font-weight: 700; }
+    .quiz-drop button:not(.selected)::before { content: ''; display: inline-block; width: 0.9em; }
+
+    /* ── Main ── */
+    main { max-width: 720px; margin: 0 auto; padding: 18px 16px; }
+
+    /* ── Filter bar ── */
+    .filter-bar {
       display: flex;
       gap: 6px;
       margin-bottom: 12px;
       justify-content: center;
-      flex-wrap: nowrap;
     }
 
     .filter-btn {
@@ -100,11 +137,10 @@
       border: 1px solid var(--border);
       background: transparent;
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      white-space: nowrap;
     }
 
     .filter-btn.active {
@@ -113,31 +149,8 @@
       color: #fff;
     }
 
-    .quiz-type-btn {
-      padding: 5px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.78rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .quiz-type-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #0f172a;
-    }
-
     /* ── Nav row ── */
-    .card-wrapper, .quiz-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .card-wrapper, .quiz-wrapper { display: flex; flex-direction: column; gap: 10px; }
 
     .nav-row {
       display: flex;
@@ -159,10 +172,7 @@
       white-space: nowrap;
     }
 
-    .nav-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-    }
+    .nav-btn:hover { border-color: var(--primary); color: var(--primary); }
 
     .random-btn {
       padding: 8px 22px;
@@ -184,16 +194,23 @@
       background: var(--surface);
       border-radius: 14px;
       box-shadow: var(--shadow);
-      padding: 24px 28px;
+      padding: 22px 26px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       animation: fadeIn 0.25s ease;
     }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(5px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     .card-type-badge {
@@ -208,15 +225,26 @@
     .badge-word   { background: #312e81; color: #a5b4fc; }
     .badge-phrase { background: #164e63; color: #67e8f9; }
 
+    /* ── Frequency ── */
+    .freq-wrap { display: flex; align-items: center; gap: 6px; }
+    .freq-label { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
+    .freq-dots { display: flex; gap: 3px; }
+    .freq-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      background: var(--border);
+    }
+    .freq-dot.on { background: var(--accent); }
+
     .card-en {
-      font-size: 1.8rem;
+      font-size: 1.75rem;
       font-weight: 800;
       color: var(--primary);
       line-height: 1.2;
     }
 
     .card-phonetic {
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
       font-style: italic;
       margin-top: 2px;
@@ -224,8 +252,8 @@
 
     .divider { height: 1px; background: var(--border); }
 
-    .card-pos  { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 3px; }
-    .card-ja   { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .card-pos  { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 2px; }
+    .card-ja   { font-size: 1.05rem; font-weight: 700; color: var(--text); }
 
     .card-example {
       background: var(--surface2);
@@ -237,23 +265,17 @@
       gap: 4px;
     }
 
-    .card-example .en { font-size: 0.88rem; color: var(--text); font-style: italic; }
-    .card-example .ja { font-size: 0.82rem; color: var(--text-muted); }
+    .card-example .en { font-size: 0.86rem; color: var(--text); font-style: italic; }
+    .card-example .ja { font-size: 0.8rem; color: var(--text-muted); }
 
-    .card-counter {
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
+    .card-counter { text-align: center; font-size: 0.73rem; color: var(--text-muted); }
 
     /* ── Quiz card ── */
-    .quiz-section { display: flex; flex-direction: column; gap: 0; }
-
     .quiz-card {
       background: var(--surface);
       border-radius: 14px;
       box-shadow: var(--shadow);
-      padding: 24px 28px;
+      padding: 22px 26px;
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -261,7 +283,7 @@
     }
 
     .quiz-question-label {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -270,7 +292,7 @@
     }
 
     .quiz-question {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       font-weight: 800;
       color: var(--text);
       line-height: 1.35;
@@ -288,25 +310,22 @@
 
     .reveal-btn {
       align-self: flex-start;
-      padding: 8px 20px;
+      padding: 7px 18px;
       border-radius: var(--radius);
       background: transparent;
       border: 1px solid var(--border);
       color: var(--text-muted);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
     }
 
-    .reveal-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     .answer-reveal {
-      background: var(--reveal-bg);
-      border: 1px solid var(--reveal-border);
+      background: #052e16;
+      border: 1px solid #166534;
       border-radius: var(--radius);
       padding: 12px 16px;
       display: none;
@@ -318,30 +337,17 @@
     .answer-reveal.visible { display: flex; }
 
     .answer-reveal .label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--reveal-label);
+      color: #4ade80;
     }
 
-    .answer-reveal .answer-text {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-    }
+    .answer-reveal .answer-text { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .answer-reveal .answer-sub  { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
 
-    .answer-reveal .answer-sub {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      font-style: italic;
-    }
-
-    .quiz-counter {
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
+    .quiz-counter { text-align: center; font-size: 0.73rem; color: var(--text-muted); }
 
     .section-hidden { display: none !important; }
   </style>
@@ -352,7 +358,14 @@
   <h1>📚 英語学習</h1>
   <div class="mode-tabs">
     <button class="mode-tab active" id="tab-learn" onclick="switchMode('learn')">学習モード</button>
-    <button class="mode-tab" id="tab-quiz" onclick="switchMode('quiz')">クイズモード</button>
+    <div class="quiz-tab-wrap" id="quiz-tab-wrap">
+      <button class="mode-tab" id="tab-quiz" onclick="toggleQuizDrop()">クイズモード ▾</button>
+      <div class="quiz-drop" id="quiz-drop">
+        <button id="drop-en-ja" onclick="pickQuizType('en-ja')">英語 → 日本語</button>
+        <button id="drop-ja-en" onclick="pickQuizType('ja-en')">日本語 → 英語</button>
+        <button id="drop-blank"  onclick="pickQuizType('blank')">穴あき問題</button>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -379,17 +392,11 @@
   </section>
 
   <!-- ─── QUIZ MODE ─── -->
-  <section id="quiz-section" class="section-hidden quiz-section">
+  <section id="quiz-section" class="section-hidden">
     <div class="filter-bar">
       <button class="filter-btn active" onclick="setQuizFilter('all', this)">すべて</button>
       <button class="filter-btn" onclick="setQuizFilter('word', this)">単語</button>
       <button class="filter-btn" onclick="setQuizFilter('phrase', this)">熟語</button>
-    </div>
-
-    <div class="quiz-type-bar">
-      <button class="quiz-type-btn active" onclick="setQuizType('en-ja', this)">英語 → 日本語</button>
-      <button class="quiz-type-btn" onclick="setQuizType('ja-en', this)">日本語 → 英語</button>
-      <button class="quiz-type-btn" onclick="setQuizType('blank', this)">穴あき問題</button>
     </div>
 
     <div class="quiz-wrapper">
@@ -408,7 +415,7 @@
         <div class="answer-reveal" id="answer-reveal">
           <div class="label">正解</div>
           <div class="answer-text" id="answer-main"></div>
-          <div class="answer-sub" id="answer-sub"></div>
+          <div class="answer-sub"  id="answer-sub"></div>
         </div>
       </div>
 
@@ -419,53 +426,57 @@
 </main>
 
 <script>
+  // ─── Data ────────────────────────────────────────────────────
+  // freq: 1(rare)〜5(very common)
   const words = [
-    { type:'word', en:'eloquent', phonetic:'/ˈɛləkwənt/', pos:'形容詞', ja:'雄弁な、説得力のある',
+    { type:'word', en:'eloquent',     phonetic:'/ˈɛləkwənt/',         pos:'形容詞', freq:3, ja:'雄弁な、説得力のある',
       example:{ en:'She gave an eloquent speech that moved the entire audience.', ja:'彼女は聴衆全員を感動させる雄弁なスピーチをした。' } },
-    { type:'word', en:'perseverance', phonetic:'/ˌpɜːrsɪˈvɪərəns/', pos:'名詞', ja:'忍耐力、粘り強さ',
+    { type:'word', en:'perseverance', phonetic:'/ˌpɜːrsɪˈvɪərəns/',   pos:'名詞',   freq:4, ja:'忍耐力、粘り強さ',
       example:{ en:'His perseverance helped him overcome every obstacle.', ja:'彼の忍耐力はあらゆる障害を乗り越える助けになった。' } },
-    { type:'word', en:'ambiguous', phonetic:'/æmˈbɪɡjuəs/', pos:'形容詞', ja:'曖昧な、多義的な',
+    { type:'word', en:'ambiguous',    phonetic:'/æmˈbɪɡjuəs/',         pos:'形容詞', freq:4, ja:'曖昧な、多義的な',
       example:{ en:'The instructions were ambiguous and hard to follow.', ja:'説明が曖昧でわかりにくかった。' } },
-    { type:'word', en:'meticulous', phonetic:'/mɪˈtɪkjʊləs/', pos:'形容詞', ja:'細心の、几帳面な',
+    { type:'word', en:'meticulous',   phonetic:'/mɪˈtɪkjʊləs/',        pos:'形容詞', freq:3, ja:'細心の、几帳面な',
       example:{ en:'She is meticulous about checking every detail of her work.', ja:'彼女は仕事の細部まで細心の注意を払って確認する。' } },
-    { type:'word', en:'resilient', phonetic:'/rɪˈzɪliənt/', pos:'形容詞', ja:'回復力のある、しなやかな',
+    { type:'word', en:'resilient',    phonetic:'/rɪˈzɪliənt/',          pos:'形容詞', freq:4, ja:'回復力のある、しなやかな',
       example:{ en:'Children are often more resilient than we expect.', ja:'子どもたちは私たちが思う以上に回復力がある。' } },
-    { type:'word', en:'pragmatic', phonetic:'/præɡˈmætɪk/', pos:'形容詞', ja:'実用的な、現実的な',
+    { type:'word', en:'pragmatic',    phonetic:'/præɡˈmætɪk/',          pos:'形容詞', freq:3, ja:'実用的な、現実的な',
       example:{ en:'We need a pragmatic solution, not an idealistic one.', ja:'理想的ではなく現実的な解決策が必要だ。' } },
-    { type:'word', en:'ephemeral', phonetic:'/ɪˈfɛmərəl/', pos:'形容詞', ja:'はかない、短命の',
+    { type:'word', en:'ephemeral',    phonetic:'/ɪˈfɛmərəl/',           pos:'形容詞', freq:2, ja:'はかない、短命の',
       example:{ en:'Fame can be ephemeral in the age of social media.', ja:'SNS時代において名声ははかないものかもしれない。' } },
-    { type:'word', en:'benevolent', phonetic:'/bɪˈnɛvələnt/', pos:'形容詞', ja:'慈悲深い、善意の',
+    { type:'word', en:'benevolent',   phonetic:'/bɪˈnɛvələnt/',         pos:'形容詞', freq:2, ja:'慈悲深い、善意の',
       example:{ en:'The benevolent donor funded the entire school library.', ja:'慈悲深い寄付者が学校図書館全体に資金を提供した。' } },
-    { type:'word', en:'profound', phonetic:'/prəˈfaʊnd/', pos:'形容詞', ja:'深遠な、非常に大きな',
+    { type:'word', en:'profound',     phonetic:'/prəˈfaʊnd/',           pos:'形容詞', freq:4, ja:'深遠な、非常に大きな',
       example:{ en:'The experience had a profound effect on her life.', ja:'その経験は彼女の人生に深遠な影響を与えた。' } },
-    { type:'word', en:'tenacious', phonetic:'/tɪˈneɪʃəs/', pos:'形容詞', ja:'粘り強い、固執する',
+    { type:'word', en:'tenacious',    phonetic:'/tɪˈneɪʃəs/',           pos:'形容詞', freq:3, ja:'粘り強い、固執する',
       example:{ en:'The tenacious athlete never gave up, even after losing.', ja:'粘り強いアスリートは負けた後でも決して諦めなかった。' } },
-    { type:'phrase', en:'break the ice', pos:'慣用句', ja:'緊張をほぐす、話のきっかけを作る',
+    { type:'phrase', en:'break the ice',                pos:'慣用句', freq:5, ja:'緊張をほぐす、話のきっかけを作る',
       example:{ en:'He told a joke to break the ice at the meeting.', ja:'彼は会議の緊張をほぐすためにジョークを言った。' } },
-    { type:'phrase', en:'hit the nail on the head', pos:'慣用句', ja:'核心をつく、的を射る',
+    { type:'phrase', en:'hit the nail on the head',     pos:'慣用句', freq:4, ja:'核心をつく、的を射る',
       example:{ en:'You really hit the nail on the head with that analysis.', ja:'そのご分析はまさに核心をついていますね。' } },
-    { type:'phrase', en:'bite the bullet', pos:'慣用句', ja:'歯を食いしばって耐える、腹をくくる',
+    { type:'phrase', en:'bite the bullet',              pos:'慣用句', freq:4, ja:'歯を食いしばって耐える、腹をくくる',
       example:{ en:'I decided to bite the bullet and visit the dentist.', ja:'腹をくくって歯医者に行くことにした。' } },
-    { type:'phrase', en:'spill the beans', pos:'慣用句', ja:'秘密を漏らす、うっかり話してしまう',
+    { type:'phrase', en:'spill the beans',              pos:'慣用句', freq:4, ja:'秘密を漏らす、うっかり話してしまう',
       example:{ en:"Don't spill the beans about the surprise party!", ja:'サプライズパーティーのことを漏らさないで！' } },
-    { type:'phrase', en:'once in a blue moon', pos:'慣用句', ja:'めったにない、ごくたまに',
+    { type:'phrase', en:'once in a blue moon',          pos:'慣用句', freq:5, ja:'めったにない、ごくたまに',
       example:{ en:'She only visits her hometown once in a blue moon.', ja:'彼女はめったに故郷に帰らない。' } },
-    { type:'phrase', en:'cost an arm and a leg', pos:'慣用句', ja:'非常に高価、目が飛び出るほど高い',
+    { type:'phrase', en:'cost an arm and a leg',        pos:'慣用句', freq:5, ja:'非常に高価、目が飛び出るほど高い',
       example:{ en:'That new smartphone costs an arm and a leg.', ja:'その新しいスマートフォンはとても高価だ。' } },
-    { type:'phrase', en:'the ball is in your court', pos:'慣用句', ja:'あなた次第だ、あなたが決める番だ',
+    { type:'phrase', en:'the ball is in your court',    pos:'慣用句', freq:3, ja:'あなた次第だ、あなたが決める番だ',
       example:{ en:"I've made my offer — the ball is in your court now.", ja:'私はオファーをした。あとはあなた次第だ。' } },
-    { type:'phrase', en:'kill two birds with one stone', pos:'慣用句', ja:'一石二鳥',
+    { type:'phrase', en:'kill two birds with one stone', pos:'慣用句', freq:5, ja:'一石二鳥',
       example:{ en:'I combined my commute with a podcast — killing two birds with one stone.', ja:'通勤中にポッドキャストを聴いて一石二鳥にした。' } },
-    { type:'phrase', en:'under the weather', pos:'慣用句', ja:'体調が悪い、気分が優れない',
+    { type:'phrase', en:'under the weather',            pos:'慣用句', freq:5, ja:'体調が悪い、気分が優れない',
       example:{ en:"I'm feeling a bit under the weather today.", ja:'今日は少し体調が悪い。' } },
-    { type:'phrase', en:'burn the midnight oil', pos:'慣用句', ja:'夜遅くまで働く、徹夜で勉強する',
+    { type:'phrase', en:'burn the midnight oil',        pos:'慣用句', freq:4, ja:'夜遅くまで働く、徹夜で勉強する',
       example:{ en:'She burned the midnight oil to finish the report on time.', ja:'彼女はレポートを間に合わせるために夜遅くまで働いた。' } }
   ];
 
+  // ─── State ───────────────────────────────────────────────────
   let mode = 'learn';
   let learnFilter = 'all', learnIndex = 0, learnDeck = [];
-  let quizFilter = 'all', quizType = 'en-ja', quizDeck = [], quizIndex = 0;
+  let quizFilter  = 'all', quizType = 'en-ja', quizDeck = [], quizIndex = 0;
 
+  // ─── Utility ─────────────────────────────────────────────────
   function filtered(f) { return f === 'all' ? words : words.filter(w => w.type === f); }
 
   function shuffled(arr) {
@@ -477,16 +488,43 @@
     return a;
   }
 
+  function freqDots(freq) {
+    return Array.from({length: 5}, (_, i) =>
+      `<span class="freq-dot${i < freq ? ' on' : ''}"></span>`
+    ).join('');
+  }
+
+  // ─── Mode switching ───────────────────────────────────────────
   function switchMode(m) {
     mode = m;
     document.getElementById('learn-section').classList.toggle('section-hidden', m !== 'learn');
     document.getElementById('quiz-section').classList.toggle('section-hidden', m !== 'quiz');
     document.getElementById('tab-learn').classList.toggle('active', m === 'learn');
     document.getElementById('tab-quiz').classList.toggle('active', m === 'quiz');
-    if (m === 'quiz') initQuiz();
   }
 
-  // ── Learn ──
+  // ─── Quiz dropdown ────────────────────────────────────────────
+  function toggleQuizDrop() {
+    document.getElementById('quiz-drop').classList.toggle('open');
+  }
+
+  function pickQuizType(t) {
+    quizType = t;
+    document.getElementById('quiz-drop').classList.remove('open');
+    ['en-ja', 'ja-en', 'blank'].forEach(k => {
+      document.getElementById('drop-' + k).classList.toggle('selected', k === t);
+    });
+    initQuiz();
+    switchMode('quiz');
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#quiz-tab-wrap')) {
+      document.getElementById('quiz-drop').classList.remove('open');
+    }
+  });
+
+  // ─── Learning mode ────────────────────────────────────────────
   function setFilter(f, btn) {
     learnFilter = f;
     learnDeck = filtered(f);
@@ -499,7 +537,13 @@
   function renderCard() {
     const item = learnDeck[learnIndex];
     document.getElementById('learn-card').innerHTML = `
-      <div><span class="card-type-badge ${item.type === 'word' ? 'badge-word' : 'badge-phrase'}">${item.type === 'word' ? '単語' : '熟語'}</span></div>
+      <div class="card-header">
+        <span class="card-type-badge ${item.type === 'word' ? 'badge-word' : 'badge-phrase'}">${item.type === 'word' ? '単語' : '熟語'}</span>
+        <div class="freq-wrap">
+          <span class="freq-label">使用頻度</span>
+          <div class="freq-dots">${freqDots(item.freq)}</div>
+        </div>
+      </div>
       <div>
         <div class="card-en">${item.en}</div>
         ${item.phonetic ? `<div class="card-phonetic">${item.phonetic}</div>` : ''}
@@ -530,17 +574,10 @@
     renderCard();
   }
 
-  // ── Quiz ──
+  // ─── Quiz mode ────────────────────────────────────────────────
   function setQuizFilter(f, btn) {
     quizFilter = f;
     document.querySelectorAll('#quiz-section .filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    initQuiz();
-  }
-
-  function setQuizType(t, btn) {
-    quizType = t;
-    document.querySelectorAll('.quiz-type-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     initQuiz();
   }
@@ -569,7 +606,7 @@
       const blanked = item.example.en.replace(regex, '<span class="blank">　　　　</span>');
       labelEl.textContent = '例文の空欄に当てはまる英語を答えてください';
       questionEl.innerHTML = blanked +
-        `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:8px;font-style:normal;">ヒント: ${item.ja}</div>`;
+        `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;font-style:normal;">ヒント: ${item.ja}</div>`;
     }
     document.getElementById('quiz-counter').textContent = `${quizIndex + 1} / ${quizDeck.length}`;
   }
@@ -590,23 +627,28 @@
   function revealAnswer() {
     const item = quizDeck[quizIndex % quizDeck.length];
     const main = document.getElementById('answer-main');
-    const sub = document.getElementById('answer-sub');
+    const sub  = document.getElementById('answer-sub');
     if (quizType === 'en-ja') {
       main.textContent = item.ja;
-      sub.textContent = `例文: "${item.example.en}"`;
+      sub.textContent  = `例文: "${item.example.en}"`;
     } else if (quizType === 'ja-en') {
       main.textContent = item.en;
-      sub.textContent = `例文: "${item.example.en}"`;
+      sub.textContent  = `例文: "${item.example.en}"`;
     } else {
       main.textContent = item.en;
-      sub.textContent = item.example.en;
+      sub.textContent  = item.example.en;
     }
     document.getElementById('answer-reveal').classList.add('visible');
   }
 
-  // Init
+  // ─── Init ─────────────────────────────────────────────────────
   learnDeck = filtered('all');
   renderCard();
+
+  // ─── Service Worker ───────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
 </script>
 </body>
 </html>
