@@ -270,8 +270,23 @@
 
     .card-counter { text-align: center; font-size: 0.73rem; color: var(--text-muted); }
 
-    /* ── Quiz card ── */
-    .quiz-card {
+    /* ── Quiz flip card ── */
+    .flip-scene {
+      perspective: 1000px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .flip-inner {
+      display: grid;
+      transition: transform 0.52s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flip-front,
+    .flip-back {
+      grid-area: 1 / 1;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
       background: var(--surface);
       border-radius: 14px;
       box-shadow: var(--shadow);
@@ -279,8 +294,15 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
-      animation: fadeIn 0.25s ease;
     }
+
+    .flip-back {
+      transform: rotateY(180deg);
+      background: #081c12;
+      border: 1px solid #166534;
+    }
+
+    .flip-inner.flipped { transform: rotateY(180deg); }
 
     .quiz-question-label {
       font-size: 0.7rem;
@@ -323,20 +345,7 @@
 
     .reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    .answer-reveal {
-      background: #052e16;
-      border: 1px solid #166534;
-      border-radius: var(--radius);
-      padding: 12px 16px;
-      display: none;
-      flex-direction: column;
-      gap: 4px;
-      animation: fadeIn 0.2s ease;
-    }
-
-    .answer-reveal.visible { display: flex; }
-
-    .answer-reveal .label {
+    .answer-label {
       font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -344,8 +353,8 @@
       color: #4ade80;
     }
 
-    .answer-reveal .answer-text { font-size: 1rem; font-weight: 700; color: var(--text); }
-    .answer-reveal .answer-sub  { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
+    .answer-main { font-size: 1.35rem; font-weight: 800; color: var(--text); line-height: 1.3; }
+    .answer-sub  { font-size: 0.82rem; color: var(--text-muted); font-style: italic; }
 
     .quiz-counter { text-align: center; font-size: 0.73rem; color: var(--text-muted); }
 
@@ -406,16 +415,19 @@
         <button class="nav-btn" onclick="navigateQuiz(1)">次へ ▶</button>
       </div>
 
-      <div class="quiz-card">
-        <div>
-          <div class="quiz-question-label" id="quiz-label"></div>
-          <div class="quiz-question" id="quiz-question"></div>
-        </div>
-        <button class="reveal-btn" onclick="revealAnswer()">💡 答えを確認</button>
-        <div class="answer-reveal" id="answer-reveal">
-          <div class="label">正解</div>
-          <div class="answer-text" id="answer-main"></div>
-          <div class="answer-sub"  id="answer-sub"></div>
+      <div class="flip-scene">
+        <div class="flip-inner" id="flip-inner">
+          <div class="flip-front">
+            <div class="quiz-question-label" id="quiz-label"></div>
+            <div class="quiz-question" id="quiz-question"></div>
+            <button class="reveal-btn" onclick="revealAnswer()">💡 答えを確認</button>
+          </div>
+          <div class="flip-back">
+            <div class="answer-label">正解</div>
+            <div class="answer-main" id="answer-main"></div>
+            <div class="divider"></div>
+            <div class="answer-sub" id="answer-sub"></div>
+          </div>
         </div>
       </div>
 
@@ -589,10 +601,10 @@
   }
 
   function renderQuiz() {
-    const item = quizDeck[quizIndex % quizDeck.length];
-    document.getElementById('answer-reveal').classList.remove('visible');
+    document.getElementById('flip-inner').classList.remove('flipped');
 
-    const labelEl = document.getElementById('quiz-label');
+    const item = quizDeck[quizIndex % quizDeck.length];
+    const labelEl    = document.getElementById('quiz-label');
     const questionEl = document.getElementById('quiz-question');
 
     if (quizType === 'en-ja') {
@@ -638,7 +650,7 @@
       main.textContent = item.en;
       sub.textContent  = item.example.en;
     }
-    document.getElementById('answer-reveal').classList.add('visible');
+    document.getElementById('flip-inner').classList.add('flipped');
   }
 
   // ─── Init ─────────────────────────────────────────────────────
