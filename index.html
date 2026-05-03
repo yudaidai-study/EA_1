@@ -22,6 +22,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    button { touch-action: manipulation; }
 
     body {
       font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
@@ -414,6 +415,7 @@
       <div class="flip-scene">
         <div class="flip-inner" id="flip-inner">
           <div class="flip-front" onclick="toggleFlip()">
+            <div class="card-header" id="quiz-card-header"></div>
             <div class="quiz-question-label" id="quiz-label"></div>
             <div class="quiz-question" id="quiz-question"></div>
             <div class="flip-hint">タップして回答を確認 →</div>
@@ -765,6 +767,11 @@
     document.getElementById('flip-inner').classList.remove('flipped');
 
     const item = quizDeck[quizIndex % quizDeck.length];
+
+    // Front header (badge + frequency)
+    document.getElementById('quiz-card-header').innerHTML =
+      `<span class="card-type-badge ${item.type === 'word' ? 'badge-word' : 'badge-phrase'}">${item.type === 'word' ? '単語' : '熟語'}</span>` +
+      `<div class="freq-wrap"><span class="freq-label">使用頻度</span><div class="freq-dots">${freqDots(item.freq)}</div></div>`;
 
     // Front (question)
     const labelEl    = document.getElementById('quiz-label');
