@@ -330,20 +330,16 @@
       color: transparent;
     }
 
-    .reveal-btn {
-      align-self: flex-start;
-      padding: 7px 18px;
-      border-radius: var(--radius);
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+    .flip-front,
+    .flip-back { cursor: pointer; user-select: none; }
 
-    .reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .flip-hint {
+      margin-top: auto;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: right;
+      opacity: 0.6;
+    }
 
     .answer-label {
       font-size: 0.68rem;
@@ -417,16 +413,17 @@
 
       <div class="flip-scene">
         <div class="flip-inner" id="flip-inner">
-          <div class="flip-front">
+          <div class="flip-front" onclick="toggleFlip()">
             <div class="quiz-question-label" id="quiz-label"></div>
             <div class="quiz-question" id="quiz-question"></div>
-            <button class="reveal-btn" onclick="revealAnswer()">💡 答えを確認</button>
+            <div class="flip-hint">タップして回答を確認 →</div>
           </div>
-          <div class="flip-back">
+          <div class="flip-back" onclick="toggleFlip()">
             <div class="answer-label">正解</div>
             <div class="answer-main" id="answer-main"></div>
             <div class="divider"></div>
             <div class="answer-sub" id="answer-sub"></div>
+            <div class="flip-hint">← タップして問題に戻る</div>
           </div>
         </div>
       </div>
@@ -480,7 +477,171 @@
     { type:'phrase', en:'under the weather',            pos:'慣用句', freq:5, ja:'体調が悪い、気分が優れない',
       example:{ en:"I'm feeling a bit under the weather today.", ja:'今日は少し体調が悪い。' } },
     { type:'phrase', en:'burn the midnight oil',        pos:'慣用句', freq:4, ja:'夜遅くまで働く、徹夜で勉強する',
-      example:{ en:'She burned the midnight oil to finish the report on time.', ja:'彼女はレポートを間に合わせるために夜遅くまで働いた。' } }
+      example:{ en:'She burned the midnight oil to finish the report on time.', ja:'彼女はレポートを間に合わせるために夜遅くまで働いた。' } },
+
+    // ── 追加単語 40 ──
+    { type:'word', en:'alleviate',    phonetic:'/əˈliːvieɪt/',     pos:'動詞',   freq:3, ja:'和らげる、軽減する',
+      example:{ en:'Exercise can alleviate stress and improve your mood.', ja:'運動はストレスを和らげ、気分を向上させることができる。' } },
+    { type:'word', en:'arduous',      phonetic:'/ˈɑːrdʒuəs/',      pos:'形容詞', freq:2, ja:'骨の折れる、過酷な',
+      example:{ en:'The arduous hike to the summit took nearly ten hours.', ja:'山頂への過酷なハイキングには約10時間かかった。' } },
+    { type:'word', en:'candid',       phonetic:'/ˈkændɪd/',         pos:'形容詞', freq:3, ja:'率直な、正直な',
+      example:{ en:'I appreciate your candid feedback on my presentation.', ja:'私のプレゼンについての率直なフィードバックに感謝します。' } },
+    { type:'word', en:'comply',       phonetic:'/kəmˈplaɪ/',        pos:'動詞',   freq:4, ja:'従う、遵守する',
+      example:{ en:'All employees must comply with the company safety regulations.', ja:'全従業員は会社の安全規則に従わなければならない。' } },
+    { type:'word', en:'concise',      phonetic:'/kənˈsaɪs/',        pos:'形容詞', freq:3, ja:'簡潔な、要領を得た',
+      example:{ en:'Please keep your report concise and to the point.', ja:'レポートは簡潔で要点を押さえたものにしてください。' } },
+    { type:'word', en:'contemplate',  phonetic:'/ˈkɒntəmpleɪt/',    pos:'動詞',   freq:3, ja:'熟考する、考慮する',
+      example:{ en:'She sat quietly, contemplating her next career move.', ja:'彼女は静かに座り、次のキャリアの動きを熟考した。' } },
+    { type:'word', en:'credible',     phonetic:'/ˈkrɛdɪbəl/',       pos:'形容詞', freq:4, ja:'信頼できる、説得力のある',
+      example:{ en:'You need credible sources to support your argument.', ja:'議論を支えるには信頼できる情報源が必要だ。' } },
+    { type:'word', en:'crucial',      phonetic:'/ˈkruːʃəl/',         pos:'形容詞', freq:5, ja:'非常に重要な、決定的な',
+      example:{ en:'Getting enough sleep is crucial for your health.', ja:'十分な睡眠を取ることは健康にとって非常に重要だ。' } },
+    { type:'word', en:'dedicate',     phonetic:'/ˈdɛdɪkeɪt/',       pos:'動詞',   freq:4, ja:'専念する、捧げる',
+      example:{ en:'She dedicated years of her life to medical research.', ja:'彼女は人生の数年間を医学研究に捧げた。' } },
+    { type:'word', en:'diligent',     phonetic:'/ˈdɪlɪdʒənt/',      pos:'形容詞', freq:3, ja:'勤勉な、精励な',
+      example:{ en:'A diligent student reviews their notes every evening.', ja:'勤勉な学生は毎晩ノートを復習する。' } },
+    { type:'word', en:'diverse',      phonetic:'/daɪˈvɜːrs/',        pos:'形容詞', freq:5, ja:'多様な、さまざまな',
+      example:{ en:'The city has a diverse population from many cultures.', ja:'その都市には多くの文化を持つ多様な住民がいる。' } },
+    { type:'word', en:'elaborate',    phonetic:'/ɪˈlæbərət/',        pos:'形容詞', freq:3, ja:'手の込んだ、精巧な',
+      example:{ en:'The chef prepared an elaborate five-course dinner.', ja:'シェフは手の込んだ5コースのディナーを用意した。' } },
+    { type:'word', en:'empathy',      phonetic:'/ˈɛmpəθi/',          pos:'名詞',   freq:4, ja:'共感、感情移入',
+      example:{ en:'Good leaders show empathy toward their team members.', ja:'優れたリーダーはチームメンバーへの共感を示す。' } },
+    { type:'word', en:'enhance',      phonetic:'/ɪnˈhæns/',          pos:'動詞',   freq:4, ja:'高める、強化する',
+      example:{ en:'Regular feedback can enhance your performance at work.', ja:'定期的なフィードバックは仕事のパフォーマンスを高めることができる。' } },
+    { type:'word', en:'explicit',     phonetic:'/ɪkˈsplɪsɪt/',      pos:'形容詞', freq:4, ja:'明示的な、明確な',
+      example:{ en:'The contract includes explicit terms about payment deadlines.', ja:'契約書には支払期限に関する明確な条件が含まれている。' } },
+    { type:'word', en:'facilitate',   phonetic:'/fəˈsɪlɪteɪt/',     pos:'動詞',   freq:4, ja:'促進する、容易にする',
+      example:{ en:'Technology can facilitate communication between remote teams.', ja:'テクノロジーはリモートチーム間のコミュニケーションを促進できる。' } },
+    { type:'word', en:'genuine',      phonetic:'/ˈdʒɛnjuɪn/',        pos:'形容詞', freq:4, ja:'本物の、真の',
+      example:{ en:'Her smile was genuine, not just for the cameras.', ja:'彼女の笑顔はカメラのためだけでなく、本物だった。' } },
+    { type:'word', en:'humble',       phonetic:'/ˈhʌmbəl/',          pos:'形容詞', freq:4, ja:'謙虚な、控えめな',
+      example:{ en:'Despite his success, he remained humble and approachable.', ja:'成功したにもかかわらず、彼は謙虚で親しみやすいままだった。' } },
+    { type:'word', en:'inevitable',   phonetic:'/ɪnˈɛvɪtəbəl/',     pos:'形容詞', freq:4, ja:'避けられない、必然的な',
+      example:{ en:'Change is inevitable in any growing organization.', ja:'成長する組織において変化は避けられない。' } },
+    { type:'word', en:'innovative',   phonetic:'/ˈɪnəveɪtɪv/',      pos:'形容詞', freq:4, ja:'革新的な、独創的な',
+      example:{ en:'The startup introduced an innovative solution to the problem.', ja:'そのスタートアップは問題に対する革新的な解決策を導入した。' } },
+    { type:'word', en:'integrity',    phonetic:'/ɪnˈtɛɡrɪti/',      pos:'名詞',   freq:4, ja:'誠実さ、高潔さ',
+      example:{ en:'A person of integrity always keeps their word.', ja:'誠実な人は常に約束を守る。' } },
+    { type:'word', en:'intuitive',    phonetic:'/ɪnˈtjuːɪtɪv/',     pos:'形容詞', freq:3, ja:'直感的な、使いやすい',
+      example:{ en:'The app has an intuitive design that anyone can use.', ja:'そのアプリは誰でも使える直感的なデザインをしている。' } },
+    { type:'word', en:'leverage',     phonetic:'/ˈlɛvərɪdʒ/',       pos:'動詞',   freq:4, ja:'活用する、てこの力を使う',
+      example:{ en:'We can leverage our existing network to find new clients.', ja:'既存のネットワークを活用して新しい顧客を見つけることができる。' } },
+    { type:'word', en:'mitigate',     phonetic:'/ˈmɪtɪɡeɪt/',       pos:'動詞',   freq:3, ja:'緩和する、軽減する',
+      example:{ en:'Wearing a seatbelt can mitigate the risk of serious injury.', ja:'シートベルトを着用すると重傷のリスクを軽減できる。' } },
+    { type:'word', en:'nuance',       phonetic:'/ˈnjuːɑːns/',        pos:'名詞',   freq:4, ja:'ニュアンス、微妙な差異',
+      example:{ en:'It takes years to understand the nuance of a new language.', ja:'新しい言語のニュアンスを理解するには何年もかかる。' } },
+    { type:'word', en:'obsolete',     phonetic:'/ˌɒbsəˈliːt/',      pos:'形容詞', freq:3, ja:'時代遅れの、廃れた',
+      example:{ en:'Many traditional jobs are becoming obsolete due to automation.', ja:'多くの伝統的な仕事は自動化によって時代遅れになりつつある。' } },
+    { type:'word', en:'optimistic',   phonetic:'/ˌɒptɪˈmɪstɪk/',    pos:'形容詞', freq:4, ja:'楽観的な、前向きな',
+      example:{ en:'Despite the challenges, she remained optimistic about the future.', ja:'困難があったにもかかわらず、彼女は将来について楽観的なままだった。' } },
+    { type:'word', en:'paramount',    phonetic:'/ˈpærəmaʊnt/',       pos:'形容詞', freq:3, ja:'最も重要な、最高の',
+      example:{ en:'Safety is paramount when working with heavy machinery.', ja:'重機を扱う際には安全が最も重要だ。' } },
+    { type:'word', en:'plausible',    phonetic:'/ˈplɔːzɪbəl/',       pos:'形容詞', freq:3, ja:'もっともらしい、ありえそうな',
+      example:{ en:'His explanation sounded plausible, but something felt off.', ja:'彼の説明はもっともらしく聞こえたが、何かおかしかった。' } },
+    { type:'word', en:'prominent',    phonetic:'/ˈprɒmɪnənt/',       pos:'形容詞', freq:4, ja:'著名な、目立つ',
+      example:{ en:'She is a prominent figure in the tech industry.', ja:'彼女はテクノロジー業界の著名な人物だ。' } },
+    { type:'word', en:'scrutinize',   phonetic:'/ˈskruːtɪnaɪz/',    pos:'動詞',   freq:3, ja:'精査する、詳しく調べる',
+      example:{ en:'The committee will scrutinize every item in the budget.', ja:'委員会は予算のあらゆる項目を精査する。' } },
+    { type:'word', en:'skeptical',    phonetic:'/ˈskɛptɪkəl/',       pos:'形容詞', freq:3, ja:'懐疑的な、疑い深い',
+      example:{ en:'I was skeptical about the new diet until I tried it.', ja:'試してみるまで、その新しいダイエットに懐疑的だった。' } },
+    { type:'word', en:'spontaneous',  phonetic:'/spɒnˈteɪniəs/',    pos:'形容詞', freq:3, ja:'自発的な、突発的な',
+      example:{ en:'They made a spontaneous decision to drive to the coast.', ja:'彼らは自発的に海岸へドライブする決断をした。' } },
+    { type:'word', en:'transparent',  phonetic:'/trænsˈpærənt/',     pos:'形容詞', freq:4, ja:'透明な、率直な',
+      example:{ en:'The government promised to be transparent about its decisions.', ja:'政府は決定について透明性を保つことを約束した。' } },
+    { type:'word', en:'versatile',    phonetic:'/ˈvɜːrsətaɪl/',      pos:'形容詞', freq:3, ja:'多才な、汎用的な',
+      example:{ en:'She is a versatile athlete who excels in several sports.', ja:'彼女は複数のスポーツで優れた多才なアスリートだ。' } },
+    { type:'word', en:'advocate',     phonetic:'/ˈædvəkeɪt/',        pos:'動詞',   freq:4, ja:'支持する、擁護する',
+      example:{ en:'She advocates for better working conditions for all employees.', ja:'彼女はすべての従業員のためのより良い労働条件を支持する。' } },
+    { type:'word', en:'comprehend',   phonetic:'/ˌkɒmprɪˈhɛnd/',    pos:'動詞',   freq:3, ja:'理解する、把握する',
+      example:{ en:'It took me a moment to fully comprehend what had happened.', ja:'何が起きたのか完全に理解するのに少し時間がかかった。' } },
+    { type:'word', en:'dilemma',      phonetic:'/dɪˈlɛmə/',           pos:'名詞',   freq:4, ja:'ジレンマ、板挟み',
+      example:{ en:'She faced a dilemma: stay at her job or pursue her dream.', ja:'彼女は仕事を続けるか夢を追うかというジレンマに直面した。' } },
+    { type:'word', en:'flourish',     phonetic:'/ˈflʌrɪʃ/',           pos:'動詞',   freq:3, ja:'繁栄する、栄える',
+      example:{ en:'Small businesses flourish when the local economy is strong.', ja:'地域経済が強いとき、中小企業は繁栄する。' } },
+    { type:'word', en:'vindicate',    phonetic:'/ˈvɪndɪkeɪt/',       pos:'動詞',   freq:2, ja:'正しさを証明する、潔白を晴らす',
+      example:{ en:'The new evidence completely vindicated the accused.', ja:'新しい証拠は被告人の潔白を完全に証明した。' } },
+
+    // ── 追加熟語 40 ──
+    { type:'phrase', en:'add fuel to the fire',               pos:'慣用句', freq:4, ja:'火に油を注ぐ',
+      example:{ en:'Criticizing him in public only added fuel to the fire.', ja:'人前で彼を批判するのは火に油を注ぐだけだった。' } },
+    { type:'phrase', en:'all in the same boat',               pos:'慣用句', freq:4, ja:'同じ境遇にある',
+      example:{ en:"We're all in the same boat, so let's work together.", ja:'私たちは皆同じ境遇なので、一緒に取り組もう。' } },
+    { type:'phrase', en:'at the drop of a hat',               pos:'慣用句', freq:3, ja:'すぐに、即座に',
+      example:{ en:"She's ready to help at the drop of a hat.", ja:'彼女はすぐに助けてくれる準備ができている。' } },
+    { type:'phrase', en:'back to square one',                 pos:'慣用句', freq:4, ja:'振り出しに戻る',
+      example:{ en:"The project failed and we're back to square one.", ja:'プロジェクトが失敗して振り出しに戻った。' } },
+    { type:'phrase', en:'barking up the wrong tree',          pos:'慣用句', freq:3, ja:'見当違いをする',
+      example:{ en:"If you think I took your wallet, you're barking up the wrong tree.", ja:'私が財布を取ったと思っているなら、見当違いだよ。' } },
+    { type:'phrase', en:'beat around the bush',               pos:'慣用句', freq:4, ja:'遠回しに言う、核心を避ける',
+      example:{ en:'Stop beating around the bush and tell me what happened.', ja:'遠回しに言うのをやめて、何が起きたのか教えてください。' } },
+    { type:'phrase', en:'bite off more than you can chew',    pos:'慣用句', freq:4, ja:'手に余ることを引き受ける',
+      example:{ en:'He bit off more than he could chew by taking on three projects at once.', ja:'彼は一度に3つのプロジェクトを引き受けて手に余ることをしてしまった。' } },
+    { type:'phrase', en:'blow off steam',                     pos:'慣用句', freq:4, ja:'不満を発散する',
+      example:{ en:'I go for a run to blow off steam after a stressful day.', ja:'ストレスの多い一日の後、不満を発散するためにランニングに行く。' } },
+    { type:'phrase', en:'call it a day',                      pos:'慣用句', freq:5, ja:'今日はここまでにする、終わりにする',
+      example:{ en:"We've done enough for today — let's call it a day.", ja:'今日はもう十分やった。今日はここまでにしよう。' } },
+    { type:'phrase', en:'caught red-handed',                  pos:'慣用句', freq:4, ja:'現行犯で捕まる',
+      example:{ en:'The thief was caught red-handed stealing from the shop.', ja:'泥棒は店から盗んでいるところを現行犯で捕まった。' } },
+    { type:'phrase', en:'change of heart',                    pos:'慣用句', freq:4, ja:'気持ちが変わること',
+      example:{ en:'She had a change of heart and decided not to quit.', ja:'彼女は気持ちが変わり、辞めないことにした。' } },
+    { type:'phrase', en:'cut corners',                        pos:'慣用句', freq:4, ja:'手を抜く、近道をする',
+      example:{ en:"Never cut corners when it comes to safety.", ja:'安全に関しては絶対に手を抜いてはいけない。' } },
+    { type:'phrase', en:'down to earth',                      pos:'慣用句', freq:4, ja:'現実的な、気取らない',
+      example:{ en:'Despite being famous, she is very down to earth.', ja:'有名にもかかわらず、彼女はとても気取らない。' } },
+    { type:'phrase', en:'every cloud has a silver lining',    pos:'慣用句', freq:3, ja:'悪いことにも良い面がある',
+      example:{ en:'I lost my job, but every cloud has a silver lining — now I can start my own business.', ja:'仕事を失ったが、悪いことにも良い面がある。今こそ自分のビジネスを始められる。' } },
+    { type:'phrase', en:'get the ball rolling',               pos:'慣用句', freq:4, ja:'物事を始める、スタートする',
+      example:{ en:"Let's get the ball rolling on the new marketing campaign.", ja:'新しいマーケティングキャンペーンを始めよう。' } },
+    { type:'phrase', en:'give someone the benefit of the doubt', pos:'慣用句', freq:3, ja:'とりあえず信じてあげる、善意に解釈する',
+      example:{ en:"I'll give her the benefit of the doubt — maybe she was just tired.", ja:'とりあえず信じることにしよう。疲れていただけかもしれない。' } },
+    { type:'phrase', en:'go back to the drawing board',       pos:'慣用句', freq:3, ja:'最初からやり直す',
+      example:{ en:'The prototype failed, so we had to go back to the drawing board.', ja:'プロトタイプが失敗したので、最初からやり直さなければならなかった。' } },
+    { type:'phrase', en:'hang in there',                      pos:'慣用句', freq:5, ja:'頑張れ、諦めるな',
+      example:{ en:"Things are tough right now, but hang in there.", ja:'今は辛いけど、諦めないで。' } },
+    { type:'phrase', en:'have a lot on one\'s plate',         pos:'慣用句', freq:4, ja:'やることがたくさんある',
+      example:{ en:"I'd love to help, but I have a lot on my plate right now.", ja:'助けたいのですが、今やることがたくさんあります。' } },
+    { type:'phrase', en:'hit the ground running',             pos:'慣用句', freq:3, ja:'好調なスタートを切る',
+      example:{ en:'She hit the ground running in her new role from day one.', ja:'彼女は初日から新しい役割で好調なスタートを切った。' } },
+    { type:'phrase', en:'in the nick of time',                pos:'慣用句', freq:4, ja:'ギリギリ間に合って',
+      example:{ en:'The firefighters arrived in the nick of time to save the building.', ja:'消防士たちはギリギリ間に合って建物を救った。' } },
+    { type:'phrase', en:'keep one\'s fingers crossed',        pos:'慣用句', freq:4, ja:'幸運を祈る',
+      example:{ en:"I have a big interview tomorrow — keep your fingers crossed for me!", ja:'明日大事な面接がある。幸運を祈っていてね！' } },
+    { type:'phrase', en:'make ends meet',                     pos:'慣用句', freq:4, ja:'収支を合わせる、やりくりする',
+      example:{ en:'Many families struggle to make ends meet each month.', ja:'毎月の収支を合わせるのに苦労している家族は多い。' } },
+    { type:'phrase', en:'no pain, no gain',                   pos:'慣用句', freq:4, ja:'苦労なくして得るものなし',
+      example:{ en:'Training is exhausting, but no pain, no gain.', ja:'訓練は疲れるが、苦労なくして得るものなし。' } },
+    { type:'phrase', en:'on the same page',                   pos:'慣用句', freq:5, ja:'同じ認識を持っている',
+      example:{ en:"Before we start, let's make sure everyone is on the same page.", ja:'始める前に、全員が同じ認識を持っているか確認しよう。' } },
+    { type:'phrase', en:'piece of cake',                      pos:'慣用句', freq:5, ja:'とても簡単なこと',
+      example:{ en:'The math exam was a piece of cake for her.', ja:'その数学の試験は彼女にとってとても簡単なことだった。' } },
+    { type:'phrase', en:'pull someone\'s leg',                pos:'慣用句', freq:4, ja:'からかう、冗談を言う',
+      example:{ en:'Are you serious, or are you pulling my leg?', ja:'本気で言っているの？それともからかっているの？' } },
+    { type:'phrase', en:'put one\'s foot in one\'s mouth',    pos:'慣用句', freq:3, ja:'失言する、まずいことを言う',
+      example:{ en:'He really put his foot in his mouth when he commented on her appearance.', ja:'彼は彼女の外見についてコメントして本当に失言してしまった。' } },
+    { type:'phrase', en:'read between the lines',             pos:'慣用句', freq:4, ja:'行間を読む、真意を読み取る',
+      example:{ en:'His email sounded polite, but reading between the lines, he was upset.', ja:'彼のメールは丁寧に聞こえたが、行間を読むと彼は怒っていた。' } },
+    { type:'phrase', en:'see eye to eye',                     pos:'慣用句', freq:3, ja:'意見が合う、同じ見方をする',
+      example:{ en:"We don't always see eye to eye, but we respect each other.", ja:'常に意見が合うわけではないが、お互いを尊重している。' } },
+    { type:'phrase', en:'take it with a grain of salt',       pos:'慣用句', freq:3, ja:'割り引いて考える、鵜呑みにしない',
+      example:{ en:'His advice sounds helpful, but take it with a grain of salt.', ja:'彼のアドバイスは役立ちそうだが、割り引いて考えよう。' } },
+    { type:'phrase', en:'the tip of the iceberg',             pos:'慣用句', freq:4, ja:'氷山の一角',
+      example:{ en:'The data breach we discovered was just the tip of the iceberg.', ja:'発見されたデータ漏洩は氷山の一角に過ぎなかった。' } },
+    { type:'phrase', en:'think outside the box',              pos:'慣用句', freq:4, ja:'既成概念にとらわれない発想をする',
+      example:{ en:'We need to think outside the box to solve this problem.', ja:'この問題を解決するには既成概念にとらわれない発想が必要だ。' } },
+    { type:'phrase', en:'throw in the towel',                 pos:'慣用句', freq:4, ja:'諦める、降参する',
+      example:{ en:'After months of failure, he finally threw in the towel.', ja:'何ヶ月もの失敗の後、彼はついに諦めた。' } },
+    { type:'phrase', en:'time flies',                         pos:'慣用句', freq:5, ja:'時間が経つのは早い',
+      example:{ en:"I can't believe you're already 30 — time flies!", ja:'もう30歳とは信じられない。時間が経つのは早い！' } },
+    { type:'phrase', en:'you can\'t judge a book by its cover', pos:'慣用句', freq:4, ja:'見た目で判断してはいけない',
+      example:{ en:"He seemed unfriendly at first, but you can't judge a book by its cover.", ja:'最初は無愛想に見えたが、見た目で判断してはいけない。' } },
+    { type:'phrase', en:'actions speak louder than words',    pos:'慣用句', freq:4, ja:'行動は言葉より雄弁',
+      example:{ en:"Don't just promise — actions speak louder than words.", ja:'約束するだけでなく、行動は言葉より雄弁だ。' } },
+    { type:'phrase', en:'bite the hand that feeds you',       pos:'慣用句', freq:3, ja:'恩を仇で返す',
+      example:{ en:'Criticizing your own sponsor is like biting the hand that feeds you.', ja:'自分のスポンサーを批判するのは恩を仇で返すようなものだ。' } },
+    { type:'phrase', en:'burn bridges',                       pos:'慣用句', freq:4, ja:'関係を壊す、退路を断つ',
+      example:{ en:"Try not to burn bridges when you leave a company.", ja:'会社を辞めるとき、関係を壊さないようにしよう。' } },
+    { type:'phrase', en:'the elephant in the room',           pos:'慣用句', freq:4, ja:'誰もが気づいているが触れない問題',
+      example:{ en:"Nobody mentioned the budget cuts — it was the elephant in the room.", ja:'誰も予算削減について触れなかった。それは皆が気づいているが触れない問題だった。' } }
   ];
 
   // ─── State ───────────────────────────────────────────────────
@@ -604,9 +765,10 @@
     document.getElementById('flip-inner').classList.remove('flipped');
 
     const item = quizDeck[quizIndex % quizDeck.length];
+
+    // Front (question)
     const labelEl    = document.getElementById('quiz-label');
     const questionEl = document.getElementById('quiz-question');
-
     if (quizType === 'en-ja') {
       labelEl.textContent = '次の英語の意味を日本語で答えてください';
       questionEl.textContent = item.en;
@@ -620,7 +782,26 @@
       questionEl.innerHTML = blanked +
         `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;font-style:normal;">ヒント: ${item.ja}</div>`;
     }
+
+    // Back (answer) — preloaded so flip is instant
+    const main = document.getElementById('answer-main');
+    const sub  = document.getElementById('answer-sub');
+    if (quizType === 'en-ja') {
+      main.textContent = item.ja;
+      sub.textContent  = `例文: "${item.example.en}"`;
+    } else if (quizType === 'ja-en') {
+      main.textContent = item.en;
+      sub.textContent  = `例文: "${item.example.en}"`;
+    } else {
+      main.textContent = item.en;
+      sub.textContent  = item.example.en;
+    }
+
     document.getElementById('quiz-counter').textContent = `${quizIndex + 1} / ${quizDeck.length}`;
+  }
+
+  function toggleFlip() {
+    document.getElementById('flip-inner').classList.toggle('flipped');
   }
 
   function navigateQuiz(dir) {
@@ -634,23 +815,6 @@
     while (quizDeck.length > 1 && next === quizIndex);
     quizIndex = next;
     renderQuiz();
-  }
-
-  function revealAnswer() {
-    const item = quizDeck[quizIndex % quizDeck.length];
-    const main = document.getElementById('answer-main');
-    const sub  = document.getElementById('answer-sub');
-    if (quizType === 'en-ja') {
-      main.textContent = item.ja;
-      sub.textContent  = `例文: "${item.example.en}"`;
-    } else if (quizType === 'ja-en') {
-      main.textContent = item.en;
-      sub.textContent  = `例文: "${item.example.en}"`;
-    } else {
-      main.textContent = item.en;
-      sub.textContent  = item.example.en;
-    }
-    document.getElementById('flip-inner').classList.add('flipped');
   }
 
   // ─── Init ─────────────────────────────────────────────────────
