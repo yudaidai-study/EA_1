@@ -468,6 +468,7 @@
         <button class="nav-btn" id="learn-next-nav" onclick="navigateLearn(1)" disabled>次へ ▶</button>
       </div>
       <div class="card" id="learn-card"></div>
+      <div class="card-counter" id="card-counter"></div>
     </div>
   </section>
 
@@ -501,6 +502,7 @@
           </div>
         </div>
       </div>
+      <div class="quiz-counter" id="quiz-counter"></div>
 
     </div>
   </section>
@@ -516,11 +518,9 @@
            onkeydown="if(event.key==='Enter') jumpToSeq()">
     <button class="jump-btn" onclick="jumpToSeq()">移動</button>
   </div>
-  <div class="card-counter" id="card-counter"></div>
 </div>
 <div class="bottom-bar section-hidden" id="bottom-bar-quiz">
   <button class="next-big-btn" onclick="goQuizNext()">次の問題 ▶</button>
-  <div class="quiz-counter" id="quiz-counter"></div>
 </div>
 
 <script>
