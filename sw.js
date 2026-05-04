@@ -1,4 +1,4 @@
-const CACHE = 'ea-v4';
+const CACHE = 'ea-v5';
 const ASSETS = ['./index.html', './manifest.json', './sw.js', './icon.svg'];
 
 self.addEventListener('install', e => {
