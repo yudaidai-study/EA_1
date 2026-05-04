@@ -136,6 +136,22 @@
       transition: all 0.2s;
     }
     .next-big-btn:hover { background: var(--primary-hover); }
+
+    /* ── Learn bottom row (prev | next-big | next) ── */
+    .learn-bottom-row {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .learn-bottom-row .next-big-btn {
+      flex: 1;
+      width: auto;
+    }
+    .learn-bottom-row .nav-btn {
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+    }
     .next-big-btn:active { transform: scale(0.98); }
 
     .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
@@ -464,10 +480,6 @@
     </div>
 
     <div class="card-wrapper">
-      <div class="nav-row">
-        <button class="nav-btn" id="learn-prev" onclick="navigateLearn(-1)" disabled>◀ 前へ</button>
-        <button class="nav-btn" id="learn-next-nav" onclick="navigateLearn(1)" disabled>次へ ▶</button>
-      </div>
       <div class="card" id="learn-card"></div>
       <div class="card-counter" id="card-counter"></div>
     </div>
@@ -512,7 +524,11 @@
 
 <!-- ── Fixed bottom bars ── -->
 <div class="bottom-bar" id="bottom-bar-learn">
-  <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">次の単語 / 熟語 ▶</button>
+  <div class="learn-bottom-row">
+    <button class="nav-btn" id="learn-prev" onclick="navigateLearn(-1)" disabled>◀ 前へ</button>
+    <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">次の単語 / 熟語 ▶</button>
+    <button class="nav-btn" id="learn-next-nav" onclick="navigateLearn(1)" disabled>次へ ▶</button>
+  </div>
   <div class="jump-row" id="jump-row">
     <span class="jump-label">番号指定</span>
     <input type="number" id="jump-input" class="jump-input" min="1"
