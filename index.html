@@ -754,7 +754,6 @@
     ['random', 'seq'].forEach(k =>
       document.getElementById('drop-learn-' + k).classList.toggle('selected', k === m)
     );
-    document.getElementById('learn-next-big').style.display = m === 'random' ? '' : 'none';
     learnHistory = []; learnPtr = -1; learnSeqIdx = 0;
     switchMode('learn');
     m === 'random' ? goLearnNext() : (renderCard(), updateLearnNav());
@@ -804,13 +803,18 @@
   }
 
   function goLearnNext() {
-    const deck = filtered(learnFilter);
-    const current = learnPtr >= 0 ? learnHistory[learnPtr] : null;
-    const candidates = deck.length > 1 ? deck.filter(i => i !== current) : deck;
-    const next = candidates[Math.floor(Math.random() * candidates.length)];
-    learnHistory = learnHistory.slice(0, learnPtr + 1);
-    learnHistory.push(next);
-    learnPtr++;
+    if (learnMode === 'random') {
+      const deck = filtered(learnFilter);
+      const current = learnPtr >= 0 ? learnHistory[learnPtr] : null;
+      const candidates = deck.length > 1 ? deck.filter(i => i !== current) : deck;
+      const next = candidates[Math.floor(Math.random() * candidates.length)];
+      learnHistory = learnHistory.slice(0, learnPtr + 1);
+      learnHistory.push(next);
+      learnPtr++;
+    } else {
+      const deck = filtered(learnFilter);
+      learnSeqIdx = (learnSeqIdx + 1) % deck.length;
+    }
     renderCard();
     updateLearnNav();
   }
