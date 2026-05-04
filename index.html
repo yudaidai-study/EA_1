@@ -410,13 +410,13 @@
     </div>
 
     <div class="card-wrapper">
-      <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">次の単語 / 熟語 ▶</button>
-      <div class="card" id="learn-card"></div>
-      <div class="card-counter" id="card-counter"></div>
       <div class="nav-row">
         <button class="nav-btn" id="learn-prev" onclick="navigateLearn(-1)" disabled>◀ 前へ</button>
         <button class="nav-btn" id="learn-next-nav" onclick="navigateLearn(1)" disabled>次へ ▶</button>
       </div>
+      <div class="card" id="learn-card"></div>
+      <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">次の単語 / 熟語 ▶</button>
+      <div class="card-counter" id="card-counter"></div>
     </div>
   </section>
 
@@ -429,6 +429,10 @@
     </div>
 
     <div class="quiz-wrapper">
+      <div class="nav-row">
+        <button class="nav-btn" id="quiz-prev" onclick="navigateQuiz(-1)" disabled>◀ 前へ</button>
+        <button class="nav-btn" id="quiz-next-nav" onclick="navigateQuiz(1)" disabled>次へ ▶</button>
+      </div>
       <div class="flip-scene">
         <div class="flip-inner" id="flip-inner">
           <div class="flip-front" onclick="toggleFlip()">
@@ -447,12 +451,8 @@
         </div>
       </div>
 
-      <div class="quiz-counter" id="quiz-counter"></div>
       <button class="next-big-btn" onclick="goQuizNext()">次の問題 ▶</button>
-      <div class="nav-row">
-        <button class="nav-btn" id="quiz-prev" onclick="navigateQuiz(-1)" disabled>◀ 前へ</button>
-        <button class="nav-btn" id="quiz-next-nav" onclick="navigateQuiz(1)" disabled>次へ ▶</button>
-      </div>
+      <div class="quiz-counter" id="quiz-counter"></div>
     </div>
   </section>
 
