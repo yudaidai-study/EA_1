@@ -526,7 +526,7 @@
 <div class="bottom-bar" id="bottom-bar-learn">
   <div class="learn-bottom-row">
     <button class="nav-btn" id="learn-prev" onclick="navigateLearn(-1)" disabled>◀ 前へ</button>
-    <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">次の単語 / 熟語 ▶</button>
+    <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">ランダム表示 ▶</button>
     <button class="nav-btn" id="learn-next-nav" onclick="navigateLearn(1)" disabled>次へ ▶</button>
   </div>
   <div class="jump-row" id="jump-row">
@@ -1192,6 +1192,14 @@
       learnMode === 'random' ? learnPtr <= 0 : false;
     document.getElementById('learn-next-nav').disabled =
       learnMode === 'random' ? learnPtr >= learnHistory.length - 1 : false;
+
+    const nextBig = document.getElementById('learn-next-big');
+    if (learnMode === 'seq') {
+      nextBig.style.display = 'none';
+    } else {
+      nextBig.style.display = '';
+      nextBig.textContent = 'ランダム表示 ▶';
+    }
 
     const jumpRow = document.getElementById('jump-row');
     if (learnMode === 'seq') {
