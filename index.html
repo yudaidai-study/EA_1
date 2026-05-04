@@ -79,10 +79,10 @@
       color: var(--primary);
     }
 
-    /* ── Quiz type dropdown ── */
-    .quiz-tab-wrap { position: relative; }
+    /* ── Quiz / Learn type dropdown ── */
+    .quiz-tab-wrap, .learn-tab-wrap { position: relative; }
 
-    .quiz-drop {
+    .quiz-drop, .learn-drop {
       display: none;
       position: absolute;
       top: calc(100% + 8px);
@@ -91,16 +91,16 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 6px;
-      min-width: 170px;
+      min-width: 150px;
       z-index: 200;
       box-shadow: 0 8px 28px rgba(0,0,0,0.6);
       flex-direction: column;
       gap: 2px;
     }
 
-    .quiz-drop.open { display: flex; }
+    .quiz-drop.open, .learn-drop.open { display: flex; }
 
-    .quiz-drop button {
+    .quiz-drop button, .learn-drop button {
       padding: 8px 12px;
       border-radius: 7px;
       border: none;
@@ -116,10 +116,28 @@
       gap: 6px;
     }
 
-    .quiz-drop button:hover { background: var(--surface2); color: var(--text); }
-    .quiz-drop button.selected { color: var(--primary); }
-    .quiz-drop button.selected::before { content: '✓'; font-weight: 700; }
-    .quiz-drop button:not(.selected)::before { content: ''; display: inline-block; width: 0.9em; }
+    .quiz-drop button:hover, .learn-drop button:hover { background: var(--surface2); color: var(--text); }
+    .quiz-drop button.selected, .learn-drop button.selected { color: var(--primary); }
+    .quiz-drop button.selected::before, .learn-drop button.selected::before { content: '✓'; font-weight: 700; }
+    .quiz-drop button:not(.selected)::before, .learn-drop button:not(.selected)::before { content: ''; display: inline-block; width: 0.9em; }
+
+    /* ── Big next button ── */
+    .next-big-btn {
+      width: 100%;
+      padding: 15px;
+      border-radius: var(--radius);
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .next-big-btn:hover { background: var(--primary-hover); }
+    .next-big-btn:active { transform: scale(0.98); }
+
+    .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
 
     /* ── Main ── */
     main { max-width: 720px; margin: 0 auto; padding: 18px 16px; }
@@ -363,7 +381,13 @@
 <header>
   <h1>📚 英語学習</h1>
   <div class="mode-tabs">
-    <button class="mode-tab active" id="tab-learn" onclick="switchMode('learn')">学習モード</button>
+    <div class="learn-tab-wrap" id="learn-tab-wrap">
+      <button class="mode-tab active" id="tab-learn" onclick="toggleLearnDrop()">学習モード ▾</button>
+      <div class="learn-drop" id="learn-drop">
+        <button id="drop-learn-random" class="selected" onclick="pickLearnMode('random')">ランダム</button>
+        <button id="drop-learn-seq"                     onclick="pickLearnMode('seq')">順番</button>
+      </div>
+    </div>
     <div class="quiz-tab-wrap" id="quiz-tab-wrap">
       <button class="mode-tab" id="tab-quiz" onclick="toggleQuizDrop()">クイズモード ▾</button>
       <div class="quiz-drop" id="quiz-drop">
@@ -386,14 +410,13 @@
     </div>
 
     <div class="card-wrapper">
-      <div class="nav-row">
-        <button class="nav-btn" onclick="navigate(-1)">◀ 前へ</button>
-        <button class="random-btn" onclick="goRandom()">🔀 ランダム</button>
-        <button class="nav-btn" onclick="navigate(1)">次へ ▶</button>
-      </div>
-
+      <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">次の単語 / 熟語 ▶</button>
       <div class="card" id="learn-card"></div>
       <div class="card-counter" id="card-counter"></div>
+      <div class="nav-row">
+        <button class="nav-btn" id="learn-prev" onclick="navigateLearn(-1)" disabled>◀ 前へ</button>
+        <button class="nav-btn" id="learn-next-nav" onclick="navigateLearn(1)" disabled>次へ ▶</button>
+      </div>
     </div>
   </section>
 
@@ -406,12 +429,6 @@
     </div>
 
     <div class="quiz-wrapper">
-      <div class="nav-row">
-        <button class="nav-btn" onclick="navigateQuiz(-1)">◀ 前へ</button>
-        <button class="random-btn" onclick="goQuizRandom()">🔀 ランダム</button>
-        <button class="nav-btn" onclick="navigateQuiz(1)">次へ ▶</button>
-      </div>
-
       <div class="flip-scene">
         <div class="flip-inner" id="flip-inner">
           <div class="flip-front" onclick="toggleFlip()">
@@ -431,6 +448,11 @@
       </div>
 
       <div class="quiz-counter" id="quiz-counter"></div>
+      <button class="next-big-btn" onclick="goQuizNext()">次の問題 ▶</button>
+      <div class="nav-row">
+        <button class="nav-btn" id="quiz-prev" onclick="navigateQuiz(-1)" disabled>◀ 前へ</button>
+        <button class="nav-btn" id="quiz-next-nav" onclick="navigateQuiz(1)" disabled>次へ ▶</button>
+      </div>
     </div>
   </section>
 
@@ -648,8 +670,9 @@
 
   // ─── State ───────────────────────────────────────────────────
   let mode = 'learn';
-  let learnFilter = 'all', learnIndex = 0, learnDeck = [];
-  let quizFilter  = 'all', quizType = 'en-ja', quizDeck = [], quizIndex = 0;
+  let learnMode = 'random', learnFilter = 'all';
+  let learnHistory = [], learnPtr = -1, learnSeqIdx = 0;
+  let quizFilter = 'all', quizType = 'en-ja', quizHistory = [], quizPtr = -1;
 
   // ─── Utility ─────────────────────────────────────────────────
   function filtered(f) { return f === 'all' ? words : words.filter(w => w.type === f); }
@@ -694,23 +717,42 @@
   }
 
   document.addEventListener('click', e => {
-    if (!e.target.closest('#quiz-tab-wrap')) {
-      document.getElementById('quiz-drop').classList.remove('open');
-    }
+    if (!e.target.closest('#quiz-tab-wrap'))  document.getElementById('quiz-drop').classList.remove('open');
+    if (!e.target.closest('#learn-tab-wrap')) document.getElementById('learn-drop').classList.remove('open');
   });
+
+  // ─── Learn dropdown ───────────────────────────────────────────
+  function toggleLearnDrop() {
+    switchMode('learn');
+    document.getElementById('learn-drop').classList.toggle('open');
+  }
+
+  function pickLearnMode(m) {
+    learnMode = m;
+    document.getElementById('learn-drop').classList.remove('open');
+    ['random', 'seq'].forEach(k =>
+      document.getElementById('drop-learn-' + k).classList.toggle('selected', k === m)
+    );
+    document.getElementById('learn-next-big').style.display = m === 'random' ? '' : 'none';
+    learnHistory = []; learnPtr = -1; learnSeqIdx = 0;
+    switchMode('learn');
+    m === 'random' ? goLearnNext() : (renderCard(), updateLearnNav());
+  }
 
   // ─── Learning mode ────────────────────────────────────────────
   function setFilter(f, btn) {
     learnFilter = f;
-    learnDeck = filtered(f);
-    learnIndex = 0;
+    learnHistory = []; learnPtr = -1; learnSeqIdx = 0;
     document.querySelectorAll('#learn-section .filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    renderCard();
+    learnMode === 'random' ? goLearnNext() : (renderCard(), updateLearnNav());
   }
 
   function renderCard() {
-    const item = learnDeck[learnIndex];
+    const deck = filtered(learnFilter);
+    const item = learnMode === 'random' ? learnHistory[learnPtr] : deck[learnSeqIdx];
+    if (!item) return;
+
     document.getElementById('learn-card').innerHTML = `
       <div class="card-header">
         <span class="card-type-badge ${item.type === 'word' ? 'badge-word' : 'badge-phrase'}">${item.type === 'word' ? '単語' : '熟語'}</span>
@@ -733,20 +775,41 @@
         <div class="ja">${item.example.ja}</div>
       </div>
     `;
-    document.getElementById('card-counter').textContent = `${learnIndex + 1} / ${learnDeck.length}`;
+
+    const [cur, tot] = learnMode === 'random'
+      ? [learnPtr + 1, learnHistory.length]
+      : [learnSeqIdx + 1, deck.length];
+    document.getElementById('card-counter').textContent = `${cur} / ${tot}`;
   }
 
-  function navigate(dir) {
-    learnIndex = (learnIndex + dir + learnDeck.length) % learnDeck.length;
+  function goLearnNext() {
+    const deck = filtered(learnFilter);
+    const current = learnPtr >= 0 ? learnHistory[learnPtr] : null;
+    const candidates = deck.length > 1 ? deck.filter(i => i !== current) : deck;
+    const next = candidates[Math.floor(Math.random() * candidates.length)];
+    learnHistory = learnHistory.slice(0, learnPtr + 1);
+    learnHistory.push(next);
+    learnPtr++;
     renderCard();
+    updateLearnNav();
   }
 
-  function goRandom() {
-    let next;
-    do { next = Math.floor(Math.random() * learnDeck.length); }
-    while (learnDeck.length > 1 && next === learnIndex);
-    learnIndex = next;
+  function navigateLearn(dir) {
+    if (learnMode === 'random') {
+      learnPtr += dir;
+    } else {
+      const deck = filtered(learnFilter);
+      learnSeqIdx = (learnSeqIdx + dir + deck.length) % deck.length;
+    }
     renderCard();
+    updateLearnNav();
+  }
+
+  function updateLearnNav() {
+    document.getElementById('learn-prev').disabled =
+      learnMode === 'random' ? learnPtr <= 0 : false;
+    document.getElementById('learn-next-nav').disabled =
+      learnMode === 'random' ? learnPtr >= learnHistory.length - 1 : false;
   }
 
   // ─── Quiz mode ────────────────────────────────────────────────
@@ -758,15 +821,38 @@
   }
 
   function initQuiz() {
-    quizDeck = shuffled(filtered(quizFilter));
-    quizIndex = 0;
+    quizHistory = []; quizPtr = -1;
+    goQuizNext();
+  }
+
+  function goQuizNext() {
+    const deck = filtered(quizFilter);
+    const current = quizPtr >= 0 ? quizHistory[quizPtr] : null;
+    const candidates = deck.length > 1 ? deck.filter(i => i !== current) : deck;
+    const next = candidates[Math.floor(Math.random() * candidates.length)];
+    quizHistory = quizHistory.slice(0, quizPtr + 1);
+    quizHistory.push(next);
+    quizPtr++;
     renderQuiz();
+    updateQuizNav();
+  }
+
+  function navigateQuiz(dir) {
+    quizPtr += dir;
+    renderQuiz();
+    updateQuizNav();
+  }
+
+  function updateQuizNav() {
+    document.getElementById('quiz-prev').disabled    = quizPtr <= 0;
+    document.getElementById('quiz-next-nav').disabled = quizPtr >= quizHistory.length - 1;
   }
 
   function renderQuiz() {
+    if (quizPtr < 0) return;
     document.getElementById('flip-inner').classList.remove('flipped');
 
-    const item = quizDeck[quizIndex % quizDeck.length];
+    const item = quizHistory[quizPtr];
 
     // Front header (badge + frequency)
     document.getElementById('quiz-card-header').innerHTML =
@@ -804,29 +890,15 @@
       sub.textContent  = item.example.en;
     }
 
-    document.getElementById('quiz-counter').textContent = `${quizIndex + 1} / ${quizDeck.length}`;
+    document.getElementById('quiz-counter').textContent = `${quizPtr + 1} / ${quizHistory.length}`;
   }
 
   function toggleFlip() {
     document.getElementById('flip-inner').classList.toggle('flipped');
   }
 
-  function navigateQuiz(dir) {
-    quizIndex = (quizIndex + dir + quizDeck.length) % quizDeck.length;
-    renderQuiz();
-  }
-
-  function goQuizRandom() {
-    let next;
-    do { next = Math.floor(Math.random() * quizDeck.length); }
-    while (quizDeck.length > 1 && next === quizIndex);
-    quizIndex = next;
-    renderQuiz();
-  }
-
   // ─── Init ─────────────────────────────────────────────────────
-  learnDeck = filtered('all');
-  renderCard();
+  goLearnNext();
 
   // ─── Service Worker ───────────────────────────────────────────
   if ('serviceWorker' in navigator) {
