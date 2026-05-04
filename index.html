@@ -206,6 +206,46 @@
 
     .nav-btn:hover { border-color: var(--primary); color: var(--primary); }
 
+    /* ── Jump-to row (sequential mode) ── */
+    .jump-row {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .jump-label { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+
+    .jump-input {
+      width: 64px;
+      padding: 5px 8px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .jump-input:focus { outline: none; border-color: var(--primary); }
+    .jump-input::-webkit-inner-spin-button,
+    .jump-input::-webkit-outer-spin-button { opacity: 0.4; }
+
+    .jump-btn {
+      padding: 5px 14px;
+      border-radius: var(--radius);
+      border: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .jump-btn:hover { border-color: var(--primary); color: var(--primary); }
+
     .random-btn {
       padding: 8px 22px;
       border-radius: var(--radius);
@@ -470,6 +510,12 @@
 <!-- ── Fixed bottom bars ── -->
 <div class="bottom-bar" id="bottom-bar-learn">
   <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">次の単語 / 熟語 ▶</button>
+  <div class="jump-row" id="jump-row">
+    <span class="jump-label">番号指定</span>
+    <input type="number" id="jump-input" class="jump-input" min="1"
+           onkeydown="if(event.key==='Enter') jumpToSeq()">
+    <button class="jump-btn" onclick="jumpToSeq()">移動</button>
+  </div>
   <div class="card-counter" id="card-counter"></div>
 </div>
 <div class="bottom-bar section-hidden" id="bottom-bar-quiz">
@@ -1129,6 +1175,27 @@
       learnMode === 'random' ? learnPtr <= 0 : false;
     document.getElementById('learn-next-nav').disabled =
       learnMode === 'random' ? learnPtr >= learnHistory.length - 1 : false;
+
+    const jumpRow = document.getElementById('jump-row');
+    if (learnMode === 'seq') {
+      const deck = filtered(learnFilter);
+      const inp = document.getElementById('jump-input');
+      inp.max = deck.length;
+      inp.value = learnSeqIdx + 1;
+      jumpRow.style.display = 'flex';
+    } else {
+      jumpRow.style.display = 'none';
+    }
+  }
+
+  function jumpToSeq() {
+    const deck = filtered(learnFilter);
+    const val = parseInt(document.getElementById('jump-input').value, 10);
+    if (!isNaN(val) && val >= 1 && val <= deck.length) {
+      learnSeqIdx = val - 1;
+      renderCard();
+      updateLearnNav();
+    }
   }
 
   // ─── Quiz mode ────────────────────────────────────────────────
