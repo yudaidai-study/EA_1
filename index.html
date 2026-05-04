@@ -140,7 +140,20 @@
     .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
 
     /* ── Main ── */
-    main { max-width: 720px; margin: 0 auto; padding: 18px 16px; }
+    main { max-width: 720px; margin: 0 auto; padding: 18px 16px 120px; }
+
+    /* ── Fixed bottom bar ── */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 10px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 100;
+    }
 
     /* ── Filter bar ── */
     .filter-bar {
@@ -415,8 +428,6 @@
         <button class="nav-btn" id="learn-next-nav" onclick="navigateLearn(1)" disabled>次へ ▶</button>
       </div>
       <div class="card" id="learn-card"></div>
-      <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">次の単語 / 熟語 ▶</button>
-      <div class="card-counter" id="card-counter"></div>
     </div>
   </section>
 
@@ -451,12 +462,20 @@
         </div>
       </div>
 
-      <button class="next-big-btn" onclick="goQuizNext()">次の問題 ▶</button>
-      <div class="quiz-counter" id="quiz-counter"></div>
     </div>
   </section>
 
 </main>
+
+<!-- ── Fixed bottom bars ── -->
+<div class="bottom-bar" id="bottom-bar-learn">
+  <button class="next-big-btn" id="learn-next-big" onclick="goLearnNext()">次の単語 / 熟語 ▶</button>
+  <div class="card-counter" id="card-counter"></div>
+</div>
+<div class="bottom-bar section-hidden" id="bottom-bar-quiz">
+  <button class="next-big-btn" onclick="goQuizNext()">次の問題 ▶</button>
+  <div class="quiz-counter" id="quiz-counter"></div>
+</div>
 
 <script>
   // ─── Data ────────────────────────────────────────────────────
@@ -699,6 +718,8 @@
     document.getElementById('quiz-section').classList.toggle('section-hidden', m !== 'quiz');
     document.getElementById('tab-learn').classList.toggle('active', m === 'learn');
     document.getElementById('tab-quiz').classList.toggle('active', m === 'quiz');
+    document.getElementById('bottom-bar-learn').classList.toggle('section-hidden', m !== 'learn');
+    document.getElementById('bottom-bar-quiz').classList.toggle('section-hidden', m !== 'quiz');
   }
 
   // ─── Quiz dropdown ────────────────────────────────────────────
